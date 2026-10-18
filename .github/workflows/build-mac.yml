@@ -1,0 +1,38 @@
+name: Gerar Tempo.app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Gerar Tempo.app
+        run: bash build_mac.sh
+
+      - name: Compactar
+        run: |
+          cd dist
+          ditto -c -k --sequesterRsrc --keepParent Tempo.app ../Tempo-mac.zip
+          cd ..
+          ls -la Tempo-mac.zip
+
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.0.${{ github.run_number }}"
+          gh release create "$TAG" Tempo-mac.zip \
+            --title "Tempo $TAG" \
+            --notes "Instalação: descompacte e arraste Tempo.app para Aplicativos. Na primeira vez, clique com o botão direito e escolha Abrir."
