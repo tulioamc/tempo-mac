@@ -21,18 +21,20 @@ jobs:
       - name: Gerar Tempo.app
         run: bash build_mac.sh
 
-      - name: Compactar
+      - name: Compactar e criar DMG
         run: |
           cd dist
           ditto -c -k --sequesterRsrc --keepParent Tempo.app ../Tempo-mac.zip
+          mkdir -p ../dmg-src && cp -R Tempo.app ../dmg-src/ && ln -s /Applications ../dmg-src/Applications
           cd ..
-          ls -la Tempo-mac.zip
+          hdiutil create -volname "Tempo" -srcfolder dmg-src -ov -format UDZO Tempo.dmg
+          ls -la Tempo.dmg Tempo-mac.zip
 
       - name: Publicar release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v1.0.${{ github.run_number }}"
-          gh release create "$TAG" Tempo-mac.zip \
+          gh release create "$TAG" Tempo.dmg Tempo-mac.zip \
             --title "Tempo $TAG" \
-            --notes "Instalação: descompacte e arraste Tempo.app para Aplicativos. Na primeira vez, clique com o botão direito e escolha Abrir."
+            --notes "Instalação: abra o Tempo.dmg e arraste o Tempo para Aplicativos. Na primeira vez, clique com o botão direito e escolha Abrir."
