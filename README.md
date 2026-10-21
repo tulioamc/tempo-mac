@@ -23,6 +23,11 @@ de Terapias na pasta do iCloud (`Terapias/<Ano_Mes>/`).
 - Na primeira vez, o macOS pede permissão de Automação para o "System Events" (necessária para ler o app em uso).
 - Se a janela estiver fechada ou o site não carregado no momento, a pausa não chega ao site. Próximo passo: guardar pendentes e reenviar.
 
+## Alarme do To-Do
+- `criar_lembrete` cria um lembrete com alarme no app Lembretes, na lista "Tempo" (sincroniza com o iPhone).
+- Na primeira vez, o macOS pede permissão para controlar o app Lembretes.
+- O site chama `window.pywebview.api.criar_lembrete(titulo, 'AAAA-MM-DDTHH:MM')` (ver `todoAlarmSync` no site).
+
 ## Ainda não ligado
 - O site ainda não chama `window.pywebview.api.salvar_terapia` (upload no Terapias).
 - Leitura de valor/terapeuta por OCR.
