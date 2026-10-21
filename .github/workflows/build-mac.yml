@@ -34,7 +34,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v1.0.${{ github.run_number }}"
+          TAG="$(tr -d '[:space:]' < VERSION)"
+          gh release delete "$TAG" --yes --cleanup-tag >/dev/null 2>&1 || true
           gh release create "$TAG" Tempo.dmg Tempo-mac.zip \
             --title "Tempo $TAG" \
             --notes "Instalação: abra o Tempo.dmg e arraste o Tempo para Aplicativos. Na primeira vez, clique com o botão direito e escolha Abrir."

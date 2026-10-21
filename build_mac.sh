@@ -16,4 +16,9 @@ fi
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 pyinstaller --noconfirm --windowed --name Tempo $ICON_ARGS main.py
-echo "Pronto: dist/Tempo.app"
+# versão do app = versão do site (arquivo VERSION, igual ao APP_VERSION do Tempo)
+V="$(tr -d '[:space:]' < VERSION)"
+PL="dist/Tempo.app/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $V" "$PL" || /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $V" "$PL"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $V" "$PL" || /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $V" "$PL"
+echo "Pronto: dist/Tempo.app ($V)"

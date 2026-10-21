@@ -8,6 +8,9 @@ de Terapias na pasta do iCloud (`Terapias/<Ano_Mes>/`).
     pip install -r requirements.txt
     python main.py
 
+## Versão
+O arquivo `VERSION` deve ser igual ao `APP_VERSION` do site (src/config.js). O build grava essa versão no Tempo.app e a Release leva o mesmo nome.
+
 ## Gerar o app
     ./build_mac.sh      # cria dist/Tempo.app
 
