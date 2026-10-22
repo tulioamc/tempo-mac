@@ -1,7 +1,9 @@
 """Tempo para Mac: abre o site do Tempo numa janela própria e ganha
 funções nativas (gravar no iCloud) pela ponte js_api do pywebview."""
 import base64
+import json
 import subprocess
+from datetime import datetime
 from pathlib import Path
 
 import webview
@@ -10,9 +12,48 @@ from icloud import ICLOUD_ROOT, nome_arquivo, salvar
 from idle import monitorar
 
 SITE = "https://apptempo-abon.vercel.app"
+FEEDBACK = Path.home() / "Documents" / "APPTEMPO-feedback"
+TITULO_PX = 28  # altura da barra de título da janela, em pontos (ajustar se o print vier deslocado)
 
 
 class Api:
+    def __init__(self):
+        self.janela = None
+        self._pendentes = {}
+
+    def capturar_feedback(self, rect: dict) -> str:
+        """Print da área marcada no site (x, y, w, h em pontos dentro da janela).
+        Grava o PNG já com a marcação, antes da caixa de comentário aparecer. Retorna o identificador."""
+        if self.janela is None:
+            raise RuntimeError("Janela ainda não está pronta")
+        FEEDBACK.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        x = int(self.janela.x + rect["x"])
+        y = int(self.janela.y + TITULO_PX + rect["y"])
+        w, h = max(1, int(rect["w"])), max(1, int(rect["h"]))
+        subprocess.run(
+            ["screencapture", "-x", f"-R{x},{y},{w},{h}", str(FEEDBACK / f"{stamp}.png")],
+            check=True, capture_output=True, timeout=20,
+        )
+        self._pendentes[stamp] = {"pagina": rect.get("pagina", ""), "versao": rect.get("versao", ""), "area": [x, y, w, h]}
+        return stamp
+
+    def salvar_feedback(self, identificador: str, comentario: str) -> str:
+        """Grava o comentário (TXT) ao lado do print. Retorna o caminho do TXT."""
+        meta = self._pendentes.pop(identificador, None)
+        if meta is None:
+            raise RuntimeError("Print não encontrado")
+        txt = FEEDBACK / f"{identificador}.txt"
+        conteudo = {"data": identificador, "comentario": comentario, "print": f"{identificador}.png", **meta}
+        txt.write_text(json.dumps(conteudo, ensure_ascii=False, indent=2), encoding="utf-8")
+        return str(txt)
+
+    def descartar_feedback(self, identificador: str) -> bool:
+        """Cancelado: apaga o print pendente."""
+        self._pendentes.pop(identificador, None)
+        (FEEDBACK / f"{identificador}.png").unlink(missing_ok=True)
+        return True
+
     def icloud_disponivel(self) -> bool:
         return ICLOUD_ROOT.exists()
 
@@ -50,9 +91,11 @@ class Api:
 
 
 def main():
+    api = Api()
     janela = webview.create_window(
-        "Tempo", SITE, js_api=Api(), width=1280, height=860, min_size=(900, 640),
+        "Tempo", SITE, js_api=api, width=1280, height=860, min_size=(900, 640),
     )
+    api.janela = janela
     # Ociosidade do Mac -> sugestões de pausa no site (window.TempoBridge.reportIdle)
     webview.start(monitorar, janela, private_mode=False)
 
