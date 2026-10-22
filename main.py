@@ -28,14 +28,18 @@ class Api:
             raise RuntimeError("Janela ainda não está pronta")
         FEEDBACK.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        x = int(self.janela.x + rect["x"])
-        y = int(self.janela.y + TITULO_PX + rect["y"])
-        w, h = max(1, int(rect["w"])), max(1, int(rect["h"]))
-        subprocess.run(
-            ["screencapture", "-x", f"-R{x},{y},{w},{h}", str(FEEDBACK / f"{stamp}.png")],
-            check=True, capture_output=True, timeout=20,
-        )
-        self._pendentes[stamp] = {"pagina": rect.get("pagina", ""), "versao": rect.get("versao", ""), "area": [x, y, w, h]}
+        png = str(FEEDBACK / f"{stamp}.png")
+        if rect.get("tela"):
+            # clique: tela toda (o círculo já está desenhado no site)
+            subprocess.run(["screencapture", "-x", png], check=True, capture_output=True, timeout=20)
+            area = None
+        else:
+            x = int(self.janela.x + rect["x"])
+            y = int(self.janela.y + TITULO_PX + rect["y"])
+            w, h = max(1, int(rect["w"])), max(1, int(rect["h"]))
+            subprocess.run(["screencapture", "-x", f"-R{x},{y},{w},{h}", png], check=True, capture_output=True, timeout=20)
+            area = [x, y, w, h]
+        self._pendentes[stamp] = {"pagina": rect.get("pagina", ""), "versao": rect.get("versao", ""), "tela": bool(rect.get("tela")), "area": area}
         return stamp
 
     def salvar_feedback(self, identificador: str, comentario: str) -> str:
