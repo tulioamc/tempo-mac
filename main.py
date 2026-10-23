@@ -11,7 +11,7 @@ import webview
 from icloud import ICLOUD_ROOT, nome_arquivo, salvar
 from idle import monitorar
 
-SITE = "https://apptempo-abon.vercel.app"
+SITE = "https://apptempo-abon-git-chatgpt-v202122-tulio22.vercel.app"
 FEEDBACK = Path.home() / "Documents" / "APPTEMPO-feedback"
 TITULO_PX = 28  # altura da barra de título da janela, em pontos (ajustar se o print vier deslocado)
 
