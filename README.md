@@ -1,6 +1,6 @@
 # Tempo para Mac
 
-Janela nativa que abre https://apptempo-abon.vercel.app e grava as notas e comprovantes
+Janela nativa que abre a versão de teste V2.02.122 em https://apptempo-abon-git-chatgpt-v202122-tulio22.vercel.app e grava as notas e comprovantes
 de Terapias na pasta do iCloud (`Terapias/<Ano_Mes>/`).
 
 ## Rodar no Mac
