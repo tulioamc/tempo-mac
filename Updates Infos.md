@@ -2,6 +2,9 @@
 
 
 
+## V2.06.01 (16/11/2026)
+- **Ícone novo:** relógio azul em quadrado branco.
+
 ## V2.03.16 (16/11/2026)
 - **Atualização automática:** o app compara a própria versão com o arquivo VERSION da pasta ~/tempo-build. Se houver versão nova, se atualiza sozinho (ao abrir, ou depois de 5 min parado / tela bloqueada) com atualizar.sh, e reabre.
 - **Botão no site:** "Atualizar app do Mac" aparece no rodapé da barra lateral quando há versão nova.
