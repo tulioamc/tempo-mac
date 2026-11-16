@@ -1,22 +1,29 @@
 #!/bin/bash
-# Dois cliques: gera o app do Mac, troca o que está em Aplicativos e abre de novo.
+# Primeira vez (ou quando quiser na mão): cria o certificado que mantém as permissões do app
+# entre atualizações e instala a versão desta pasta. Depois disso o app se atualiza sozinho.
 cd "$(dirname "$0")" || exit 1
-echo "Gerando o Tempo…"
-if ! ./build_mac.sh > build.log 2>&1; then
-  echo ""
-  echo "Não deu certo. As últimas linhas do registro:"
-  tail -20 build.log
-  read -n 1 -s -r -p "Aperte uma tecla para fechar."
-  exit 1
+if ! security find-certificate -c "Tempo Local" >/dev/null 2>&1; then
+  echo "Criando o certificado do Tempo (uma vez só; o Mac pode pedir sua senha)…"
+  T="$(mktemp -d)"
+  cat > "$T/c.cnf" <<'CNF'
+[req]
+distinguished_name=dn
+x509_extensions=ext
+prompt=no
+[dn]
+CN=Tempo Local
+[ext]
+keyUsage=critical,digitalSignature
+extendedKeyUsage=critical,codeSigning
+basicConstraints=critical,CA:false
+CNF
+  /usr/bin/openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -config "$T/c.cnf" -keyout "$T/k.pem" -out "$T/c.pem" >/dev/null 2>&1 \
+    && /usr/bin/openssl pkcs12 -export -inkey "$T/k.pem" -in "$T/c.pem" -out "$T/t.p12" -passout pass:tempo >/dev/null 2>&1 \
+    && security import "$T/t.p12" -k ~/Library/Keychains/login.keychain-db -P tempo -T /usr/bin/codesign >/dev/null \
+    && security add-trusted-cert -r trustRoot -p codeSign -k ~/Library/Keychains/login.keychain-db "$T/c.pem" \
+    && echo "Certificado criado." || echo "Não consegui criar o certificado; o app funciona, mas pode pedir o acesso ao disco de novo após atualizar."
+  rm -rf "$T"
 fi
-echo "Fechando o Tempo aberto…"
-osascript -e 'tell application "Tempo" to quit' >/dev/null 2>&1
-sleep 2
-pkill -x Tempo >/dev/null 2>&1
-rm -rf /Applications/Tempo.app ~/Applications/Tempo.app
-cp -R dist/Tempo.app /Applications/
-echo "Abrindo a versão $(cat VERSION)…"
-open /Applications/Tempo.app
-sleep 1
-osascript -e 'tell application "Terminal" to close (every window whose name contains "Atualizar Tempo")' >/dev/null 2>&1 &
-exit 0
+echo "Gerando e instalando o Tempo…"
+rm -f .atualizar_falhou
+if ./atualizar.sh; then echo "Pronto."; else echo "Não deu certo:"; tail -20 build.log; read -n 1 -s -r -p "Aperte uma tecla para fechar."; fi

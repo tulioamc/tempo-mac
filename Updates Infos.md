@@ -1,6 +1,13 @@
 # Updates Infos — Tempo para Mac
 
 
+
+## V2.03.16 (16/11/2026)
+- **Atualização automática:** o app compara a própria versão com o arquivo VERSION da pasta ~/tempo-build. Se houver versão nova, se atualiza sozinho (ao abrir, ou depois de 5 min parado / tela bloqueada) com atualizar.sh, e reabre.
+- **Botão no site:** "Atualizar app do Mac" aparece no rodapé da barra lateral quando há versão nova.
+- **Assinatura estável:** o certificado "Tempo Local" (criado pelo Atualizar Tempo.command na primeira vez) mantém o Acesso Total ao Disco entre atualizações.
+- **Se falhar:** grava build.log e atualizar.log e não tenta a mesma versão de novo até a pasta mudar.
+
 ## V2.03.15 (16/11/2026)
 - **Site aberto pelo app:** produção (https://apptempo-abon.vercel.app), não mais a prévia da V2.02.122.
 - **WhatsApp (wa.py):** conta as mensagens enviadas por contato e dia (nunca lê o texto das mensagens).

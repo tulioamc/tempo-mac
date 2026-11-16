@@ -11,6 +11,7 @@ import webview
 from icloud import ICLOUD_ROOT, nome_arquivo, salvar
 from idle import monitorar
 from wa import monitorar_whatsapp
+from atualizacao import atualizar_agora, monitorar_atualizacao, pendente, versao_instalada
 
 SITE = "https://apptempo-abon.vercel.app"
 FEEDBACK = Path.home() / "Documents" / "APPTEMPO-feedback"
@@ -21,6 +22,14 @@ class Api:
     def __init__(self):
         self.janela = None
         self._pendentes = {}
+
+    def versao_mac(self) -> dict:
+        """Versão instalada do app do Mac e a nova, se houver."""
+        return {"instalada": versao_instalada(), "nova": pendente()}
+
+    def atualizar_app(self) -> bool:
+        """Botão "Atualizar app do Mac" do site: gera, troca e reabre o app."""
+        return atualizar_agora()
 
     def capturar_feedback(self, rect: dict) -> str:
         """Print da área marcada no site (x, y, w, h em pontos dentro da janela).
@@ -98,6 +107,7 @@ class Api:
 def iniciar_monitores(janela):
     monitorar(janela)              # ociosidade e apps em primeiro plano
     monitorar_whatsapp(janela)     # mensagens que você mandou no WhatsApp
+    monitorar_atualizacao(janela)  # versão nova na pasta tempo-build: se atualiza sozinho
 
 
 def main():
