@@ -1,6 +1,6 @@
 # Tempo para Mac
 
-Janela nativa que abre https://apptempo-abon.vercel.app e grava as notas e comprovantes
+Janela nativa que abre o site do Tempo em https://apptempo-abon.vercel.app (produção) e grava as notas e comprovantes
 de Terapias na pasta do iCloud (`Terapias/<Ano_Mes>/`).
 
 ## Rodar no Mac
